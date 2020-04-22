@@ -1,23 +1,24 @@
-// import 'dart:convert';
-// import 'package:parceleja_mobile/services/user.dart';
-// import 'package:parceleja_mobile/domain/simulation/simulation_response.dart';
-// import 'package:parceleja_mobile/helpers/dialogs.dart';
-// import 'package:flutter/material.dart';
-// import 'package:parceleja_mobile/networking/base_pja_networking.dart';
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:pokedex_flutter/domain/pokemon/Pokemon_Response_class.dart';
+import 'package:http/http.dart' as http;
 
-// class PokemonNetworking {
-//   Future<PokemonResponse> searchPokemon(String id) async {
-//   var response = await super.get(resource: '${user.cnpj}/calculate/$value');
-//     if (response == null) return null;
+class PokemonNetworking {
+  static const String urlApi = 'https://pokeapi.co/api/v2/pokemon/';
 
-//     if (response == null) return null;
+  static Future<PokemonResponse> searchPokemon(String id) async {
+    var url = '$urlApi/$id';
 
-//     switch (response.statusCode) {
-//       case 200:
-//         return SimulationResponse.fromJson(json.decode(response.body));
-//       default:
-//         dialogSimulationError(super.context);
-//         return null;
-//     }
-//   }
-// }
+    var header = {"Content-Type": "application/json"};
+
+    var response = await http.get(url, headers: header);
+
+    switch (response.statusCode) {
+      case 200:
+        return PokemonResponse.fromJson(json.decode(response.body));
+      default:
+        print('error');
+        return null;
+    }
+  }
+}
