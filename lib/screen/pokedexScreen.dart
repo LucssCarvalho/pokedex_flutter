@@ -244,6 +244,14 @@ class _PokedexScreenState extends State<PokedexScreen> {
                               ),
                             ],
                           ),
+                        ),
+                        Container(
+                          height: 100,
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                                image: AssetImage(
+                                    pokemonResponse.sprites.frontDefault)),
+                          ),
                         )
                       ],
                     ),
