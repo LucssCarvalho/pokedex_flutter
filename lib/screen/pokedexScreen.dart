@@ -249,8 +249,9 @@ class _PokedexScreenState extends State<PokedexScreen> {
                           height: 100,
                           decoration: BoxDecoration(
                             image: DecorationImage(
-                                image: AssetImage(
-                                    pokemonResponse.sprites.frontDefault)),
+                                image: new AssetImage(
+                              '${pokemonResponse.sprites.frontDefault}',
+                            )),
                           ),
                         )
                       ],
