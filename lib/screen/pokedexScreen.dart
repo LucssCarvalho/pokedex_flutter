@@ -170,8 +170,12 @@ class _PokedexScreenState extends State<PokedexScreen> {
                                     });
                               },
                               child: CircleAvatar(
-                                radius: 25,
+                                radius: 27,
                                 backgroundColor: Colors.blue[900],
+                                child: Icon(
+                                  Icons.search,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
@@ -236,7 +240,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
                               Text(
-                                '${pokemonResponse.name}',
+                                '${pokemonResponse.name} - ${pokemonResponse.id}',
                                 style: TextStyle(
                                     color: Colors.black,
                                     decoration: TextDecoration.none,
@@ -245,15 +249,57 @@ class _PokedexScreenState extends State<PokedexScreen> {
                             ],
                           ),
                         ),
-                        Container(
-                          height: 100,
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                                image: new AssetImage(
-                              '${pokemonResponse.sprites.frontDefault}',
-                            )),
+                        Divider(
+                          color: Colors.black,
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 20.0),
+                          child: Column(
+                            children: <Widget>[
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: <Widget>[
+                                  Text(
+                                    'Normal',
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.black,
+                                        decoration: TextDecoration.none),
+                                  ),
+                                  Text(
+                                    'Shiny',
+                                    style: TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.black,
+                                        decoration: TextDecoration.none),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: <Widget>[
+                                  Image.network(
+                                    '${pokemonResponse.sprites.frontDefault}',
+                                    width: 120,
+                                    height: 120,
+                                    fit: BoxFit.cover,
+                                  ),
+                                  Image.network(
+                                    '${pokemonResponse.sprites.frontShiny}',
+                                    width: 120,
+                                    height: 120,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
-                        )
+                        ),
+                        Divider(
+                          color: Colors.black,
+                        ),
                       ],
                     ),
             ),
