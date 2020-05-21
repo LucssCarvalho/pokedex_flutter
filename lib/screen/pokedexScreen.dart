@@ -222,7 +222,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: <Widget>[
                             Text(
-                              'Em buscar de um pokemon ??',
+                              'Em busca de um pokemon ??',
                               style: TextStyle(
                                   fontSize: 18,
                                   color: Colors.black,
@@ -300,6 +300,9 @@ class _PokedexScreenState extends State<PokedexScreen> {
                         Divider(
                           color: Colors.black,
                         ),
+                        Column(
+                          children: buildAbilitiesRow(pokemonResponse),
+                        )
                       ],
                     ),
             ),
@@ -325,4 +328,21 @@ class _PokedexScreenState extends State<PokedexScreen> {
     }
     setState(() {});
   }
+}
+
+List<Widget> buildAbilitiesRow(PokemonResponse pokemonResponse) {
+  List<Widget> abilities = [];
+  for (int index = 0; index < pokemonResponse.abilities.length; index++) {
+    var button = Container(
+      child: Text(
+        pokemonResponse.abilities[index].toString(),
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 15,
+        ),
+      ),
+    );
+    abilities.add(button);
+  }
+  return abilities;
 }
