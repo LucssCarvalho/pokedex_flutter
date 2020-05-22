@@ -39,8 +39,10 @@ class _PokedexScreenState extends State<PokedexScreen> {
                                   showModalBottomSheet(
                                       backgroundColor: Colors.transparent,
                                       shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.vertical(
-                                              top: Radius.circular(25.0))),
+                                        borderRadius: BorderRadius.vertical(
+                                          top: Radius.circular(25.0),
+                                        ),
+                                      ),
                                       isScrollControlled: true,
                                       context: context,
                                       builder: (context) {
@@ -74,13 +76,14 @@ class _PokedexScreenState extends State<PokedexScreen> {
                                                       child: Container(
                                                         height: 5,
                                                         width: 90,
-                                                        decoration: BoxDecoration(
-                                                            color: Colors.grey,
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .all(Radius
-                                                                        .circular(
-                                                                            30))),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color: Colors.grey,
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                            Radius.circular(30),
+                                                          ),
+                                                        ),
                                                       ),
                                                     ),
                                                   ],
@@ -213,7 +216,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
             ),
             Padding(
               padding: const EdgeInsets.only(
-                  top: 90.0, right: 50, left: 50, bottom: 50),
+                  top: 90.0, right: 20, left: 20, bottom: 50),
               child: Container(
                 decoration: BoxDecoration(
                     color: Colors.white,
@@ -313,6 +316,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
                               style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.w500,
+                                fontSize: 18,
                               ),
                             ),
                           ),
