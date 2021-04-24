@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:pokedex_flutter/const/constColors.dart';
 import 'package:pokedex_flutter/domain/pokeapi.dart';
-import 'package:pokedex_flutter/domain/pokemon/Pokemon_Response_class.dart';
 import 'package:pokedex_flutter/networking/serchPokemon_networking.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:pokedex_flutter/screen/pokemonDetail.dart';
 
 class PokedexScreen extends StatefulWidget {
   @override
@@ -16,7 +16,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
   Future<PokeApi> firstGen;
 
   @override
-  Future<void> initState() {
+  initState() {
     super.initState();
     getFirstGen();
   }
@@ -24,105 +24,113 @@ class _PokedexScreenState extends State<PokedexScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        child: FutureBuilder<PokeApi>(
-          future: firstGen,
-          builder: (BuildContext context, AsyncSnapshot<PokeApi> snapshot) {
-            List<Widget> children;
-            if (snapshot.hasData) {
-              return Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: GridView.builder(
-                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 200,
-                      childAspectRatio: 3 / 2,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10),
-                  itemCount: snapshot.data.pokemon.length,
-                  itemBuilder: (BuildContext ctx, index) {
-                    var pokemon = snapshot.data.pokemon[index];
-                    return pokemonTile(pokemon);
-                  },
-                ),
-              );
-            } else if (snapshot.hasError) {
-              children = <Widget>[
-                const Icon(
-                  Icons.error_outline,
-                  color: Colors.red,
-                  size: 60,
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(top: 16),
-                  child: Text('Error: ${snapshot.error}'),
-                )
-              ];
-            } else {
-              children = const <Widget>[
-                SizedBox(
-                  child: CircularProgressIndicator(
-                    backgroundColor: Colors.red,
-                  ),
-                  width: 60,
-                  height: 60,
-                ),
-                Padding(
-                  padding: EdgeInsets.only(top: 16),
-                  child: Text('Buscando Pokemons'),
-                )
-              ];
-            }
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: children,
+      backgroundColor: Colors.grey[900],
+      body: FutureBuilder<PokeApi>(
+        future: firstGen,
+        builder: (BuildContext context, AsyncSnapshot<PokeApi> snapshot) {
+          List<Widget> children;
+          if (snapshot.hasData) {
+            return Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 200,
+                    childAspectRatio: 3 / 2,
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10),
+                itemCount: snapshot.data.pokemon.length,
+                itemBuilder: (BuildContext ctx, index) {
+                  var pokemon = snapshot.data.pokemon[index];
+                  return pokemonTile(pokemon);
+                },
               ),
             );
-          },
-        ),
+          } else if (snapshot.hasError) {
+            children = <Widget>[
+              const Icon(
+                Icons.error_outline,
+                color: Colors.red,
+                size: 60,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Text('Error: ${snapshot.error}'),
+              )
+            ];
+          } else {
+            children = const <Widget>[
+              SizedBox(
+                child: CircularProgressIndicator(
+                  backgroundColor: Colors.red,
+                ),
+                width: 60,
+                height: 60,
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 16),
+                child: Text('Buscando Pokemons'),
+              )
+            ];
+          }
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: children,
+            ),
+          );
+        },
       ),
     );
   }
 
   Widget pokemonTile(Pokemon pokemon) {
-    return Container(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => PokemonDetail(pokemon),
+          ),
+        );
+      },
+      child: Container(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    pokemon.name.toUpperCase(),
+                    style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    "#${pokemon.num.toUpperCase()}",
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  pokemon.name.toUpperCase(),
-                  style: TextStyle(
-                      fontSize: 15,
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  "#${pokemon.num.toUpperCase()}",
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.white,
-                  ),
-                ),
+                getTypes(pokemon),
+                getPokemonImage(pokemon),
               ],
-            ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              getTypes(pokemon),
-              getPokemonImage(pokemon),
-            ],
-          )
-        ],
+            )
+          ],
+        ),
+        decoration: BoxDecoration(
+            color: ConstColors.getColorType(type: pokemon.type[0]),
+            borderRadius: BorderRadius.circular(15)),
       ),
-      decoration: BoxDecoration(
-          color: ConstColors.getColorType(type: pokemon.type[0]),
-          borderRadius: BorderRadius.circular(15)),
     );
   }
 
@@ -167,7 +175,7 @@ class _PokedexScreenState extends State<PokedexScreen> {
     );
   }
 
-  getFirstGen() async {
+  getFirstGen() {
     var pokemonResponse = PokemonNetworking.searchFirstGen();
     setState(() {
       firstGen = pokemonResponse;
