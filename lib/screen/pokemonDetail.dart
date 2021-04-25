@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:pokedex_flutter/const/constColors.dart';
 import 'package:pokedex_flutter/domain/pokeapi.dart';
@@ -5,7 +7,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 class PokemonDetail extends StatefulWidget {
   final Pokemon pokemon;
-  PokemonDetail(this.pokemon);
+  final List<Pokemon> nextEvolution;
+  final List<Pokemon> prevEvolution;
+  final List<Pokemon> allPokemons;
+  PokemonDetail(
+      this.pokemon, this.nextEvolution, this.prevEvolution, this.allPokemons);
 
   @override
   _PokemonDetailState createState() => _PokemonDetailState();
@@ -117,7 +123,109 @@ class _PokemonDetailState extends State<PokemonDetail> {
               ),
             ],
           ),
+          createEvolutions()
         ],
+      ),
+    );
+  }
+
+  Widget createEvolutions() {
+    List<Widget> nextEvolutions = [];
+    List<Widget> prevEvolutions = [];
+    widget.prevEvolution.forEach((element) {
+      prevEvolutions.add(circlePokemonEvolution(element));
+    });
+    widget.nextEvolution.forEach((element) {
+      nextEvolutions.add(circlePokemonEvolution(element));
+    });
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Column(
+          children: [
+            SizedBox(height: 30),
+            Text(
+              "Evoluções",
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500),
+            ),
+            SizedBox(
+              height: 15,
+            ),
+            Row(
+              children: [
+                Row(
+                  children: prevEvolutions,
+                ),
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        child: CircleAvatar(
+                          backgroundColor: Colors.white,
+                          radius: 53,
+                          child: CircleAvatar(
+                            radius: 51,
+                            backgroundColor: ConstColors.getColorType(
+                              type: widget.pokemon.type[0],
+                            ),
+                            child: getPokemonImage(widget.pokemon),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                Row(
+                  children: nextEvolutions,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  circlePokemonEvolution(Pokemon pokemon) {
+    return GestureDetector(
+      onTap: () {
+        List<Pokemon> nextEvolution = [];
+        List<Pokemon> prevEvolution = [];
+
+        if (pokemon.nextEvolution != null) {
+          pokemon.nextEvolution.forEach((pokes) {
+            nextEvolution.add(widget.allPokemons
+                .firstWhere((element) => pokes.name == element.name));
+          });
+        }
+
+        if (pokemon.prevEvolution != null) {
+          pokemon.prevEvolution.forEach((pokes) {
+            prevEvolution.add(widget.allPokemons
+                .firstWhere((element) => pokes.name == element.name));
+          });
+        }
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => PokemonDetail(
+                pokemon, nextEvolution, prevEvolution, widget.allPokemons),
+          ),
+        );
+      },
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Container(
+          child: CircleAvatar(
+            radius: 50,
+            backgroundColor: Colors.grey[300],
+            child: getPokemonImage(pokemon),
+          ),
+        ),
       ),
     );
   }
