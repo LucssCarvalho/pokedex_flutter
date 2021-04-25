@@ -11,85 +11,134 @@ class PokedexScreen extends StatefulWidget {
 }
 
 class _PokedexScreenState extends State<PokedexScreen> {
-  TextEditingController pokemonIdController = TextEditingController();
+  TextEditingController controller = TextEditingController();
 
-  Future<PokeApi> firstGen;
+  PokeApi firstGen;
+  List<Pokemon> _searchResult = [];
 
   @override
   initState() {
     super.initState();
-    getFirstGen();
+    this.getFirstGen().then((value) => null);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[900],
-      body: FutureBuilder<PokeApi>(
-        future: firstGen,
-        builder: (BuildContext context, AsyncSnapshot<PokeApi> snapshot) {
-          List<Widget> children;
-          if (snapshot.hasData) {
-            return Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 200,
-                    childAspectRatio: 3 / 2,
-                    crossAxisSpacing: 10,
-                    mainAxisSpacing: 10),
-                itemCount: snapshot.data.pokemon.length,
-                itemBuilder: (BuildContext ctx, index) {
-                  var pokemon = snapshot.data.pokemon[index];
-                  return pokemonTile(pokemon);
-                },
-              ),
-            );
-          } else if (snapshot.hasError) {
-            children = <Widget>[
-              const Icon(
-                Icons.error_outline,
-                color: Colors.red,
-                size: 60,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(top: 16),
-                child: Text('Error: ${snapshot.error}'),
-              )
-            ];
-          } else {
-            children = const <Widget>[
-              SizedBox(
-                child: CircularProgressIndicator(
-                  backgroundColor: Colors.red,
+    return WillPopScope(
+      onWillPop: () async => null,
+      child: Scaffold(
+        backgroundColor: Colors.grey[900],
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.grey[900],
+          title: Container(
+            child: new Card(
+              child: new ListTile(
+                leading: new Icon(Icons.search),
+                title: new TextField(
+                  controller: controller,
+                  decoration: new InputDecoration(
+                      hintText: 'Buscar pokemon', border: InputBorder.none),
+                  onChanged: onSearchTextChanged,
                 ),
-                width: 60,
-                height: 60,
+                trailing: new IconButton(
+                  icon: new Icon(Icons.cancel),
+                  onPressed: () {
+                    controller.clear();
+                    onSearchTextChanged('');
+                  },
+                ),
               ),
-              Padding(
-                padding: EdgeInsets.only(top: 16),
-                child: Text('Buscando Pokemons'),
-              )
-            ];
-          }
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: children,
             ),
-          );
-        },
+          ),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.only(top: 10.0),
+          child: Column(
+            children: [
+              Container(
+                child: firstGen == null
+                    ? Center(
+                        child: Column(
+                          children: [CircularProgressIndicator()],
+                        ),
+                      )
+                    : Expanded(
+                        child: _searchResult.length != 0 ||
+                                controller.text.isNotEmpty
+                            ? GridView.builder(
+                                gridDelegate:
+                                    SliverGridDelegateWithMaxCrossAxisExtent(
+                                        maxCrossAxisExtent: 200,
+                                        childAspectRatio: 3 / 2,
+                                        crossAxisSpacing: 10,
+                                        mainAxisSpacing: 10),
+                                itemCount: _searchResult.length,
+                                itemBuilder: (BuildContext ctx, index) {
+                                  var pokemon = _searchResult[index];
+                                  return pokemonTile(pokemon);
+                                },
+                              )
+                            : GridView.builder(
+                                gridDelegate:
+                                    SliverGridDelegateWithMaxCrossAxisExtent(
+                                        maxCrossAxisExtent: 200,
+                                        childAspectRatio: 3 / 2,
+                                        crossAxisSpacing: 10,
+                                        mainAxisSpacing: 10),
+                                itemCount: firstGen.pokemon.length,
+                                itemBuilder: (BuildContext ctx, index) {
+                                  var pokemon = firstGen.pokemon[index];
+                                  return pokemonTile(pokemon);
+                                },
+                              ),
+                      ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
+  }
+
+  onSearchTextChanged(String text) async {
+    _searchResult.clear();
+    if (text.isEmpty) {
+      setState(() {});
+      return;
+    }
+
+    firstGen.pokemon.forEach((pokemon) {
+      if (pokemon.name.toUpperCase().contains(text.toUpperCase()))
+        _searchResult.add(pokemon);
+    });
+
+    setState(() {});
   }
 
   Widget pokemonTile(Pokemon pokemon) {
     return GestureDetector(
       onTap: () {
+        List<Pokemon> nextEvolution = [];
+        List<Pokemon> prevEvolution = [];
+
+        if (pokemon.nextEvolution != null) {
+          pokemon.nextEvolution.forEach((pokes) {
+            nextEvolution.add(firstGen.pokemon
+                .firstWhere((element) => pokes.name == element.name));
+          });
+        }
+
+        if (pokemon.prevEvolution != null) {
+          pokemon.prevEvolution.forEach((pokes) {
+            prevEvolution.add(firstGen.pokemon
+                .firstWhere((element) => pokes.name == element.name));
+          });
+        }
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => PokemonDetail(pokemon),
+            builder: (context) => PokemonDetail(
+                pokemon, nextEvolution, prevEvolution, firstGen.pokemon),
           ),
         );
       },
@@ -175,8 +224,8 @@ class _PokedexScreenState extends State<PokedexScreen> {
     );
   }
 
-  getFirstGen() {
-    var pokemonResponse = PokemonNetworking.searchFirstGen();
+  getFirstGen() async {
+    var pokemonResponse = await PokemonNetworking.searchFirstGen();
     setState(() {
       firstGen = pokemonResponse;
     });
